@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim ₹70</title>
+<style>
+  :root{
+    --bg1:#0ea5e9; --bg2:#2563eb;
+    --card:#0b1220f2; --text:#eaf4ff; --muted:#9fb6d6;
+    --ok1:#22c55e; --ok2:#16a34a; --danger:#ef4444;
+    --stroke:#1f2a44;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 700px at 50% 0%, var(--bg1), var(--bg2));
+    color:var(--text);
+    min-height:100svh;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .card{
+    width:100%; max-width:520px;
+    background:linear-gradient(180deg, #0b1220aa, var(--card));
+    border:1px solid var(--stroke); border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    padding:22px;
+    backdrop-filter: blur(6px);
+  }
+  h1{margin:0 0 6px;font-size:1.5rem}
+  .sub{color:var(--muted);font-size:.95rem;margin-bottom:16px}
+
+  .field{
+    display:flex;gap:10px;margin-bottom:16px;
+  }
+  .input{
+    flex:1; background:#0f1a30; color:#dce9ff;
+    border:1px solid #1e2b4a; border-radius:12px; padding:12px 14px;
+    font-size:1rem; outline:none;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .input:focus{ border-color:#3b82f6; box-shadow:0 0 0 4px rgba(59,130,246,.15); }
+
+  .join-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  }
+  .join{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    border-radius:12px; padding:12px 10px; text-decoration:none; color:#041019;
+    background:#f8fafc; font-weight:700; letter-spacing:.2px;
+    box-shadow:0 8px 18px rgba(2,6,23,.18);
+    transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+  }
+  .join:hover{ transform: translateY(-1px); box-shadow:0 10px 22px rgba(2,6,23,.22); }
+  .join.done{ opacity:.55; pointer-events:none; }
+  .join .dot{
+    width:10px;height:10px;border-radius:999px;background:#cbd5e1;border:1px solid #94a3b8;
+  }
+  .join.done .dot{ background: var(--ok1); border-color: var(--ok2); }
+
+  .cta{
+    width:100%; margin-top:14px; appearance:none; border:0; cursor:not-allowed;
+    padding:14px 18px; border-radius:12px; font-weight:800; letter-spacing:.3px; color:#041019;
+    background:linear-gradient(90deg, #9ca3af, #6b7280);
+    box-shadow:0 10px 24px rgba(2,6,23,.18); opacity:.7;
+    transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease, filter .2s ease;
+  }
+  .cta.active{
+    cursor:pointer; opacity:1;
+    background:linear-gradient(90deg, var(--ok1), var(--ok2));
+    box-shadow:0 10px 26px rgba(34,197,94,.32);
+  }
+  .cta.active:active{ transform: translateY(1px) scale(.995); }
+
+  /* Modal */
+  .overlay{
+    position:fixed; inset:0; display:none; place-items:center;
+    background:rgba(2,6,23,.6); backdrop-filter: blur(3px);
+  }
+  .modal{
+    width:min(92vw,420px); background:#0b1220; border:1px solid var(--stroke);
+    border-radius:16px; padding:22px; text-align:center;
+    animation: pop .28s ease;
+    box-shadow:0 30px 60px rgba(0,0,0,.45);
+  }
+  @keyframes pop{ from{ transform: scale(.9); opacity:0; } to{ transform: scale(1); opacity:1; } }
+  .check{
+    width:88px;height:88px;border-radius:999px;margin:2px auto 12px;
+    background: radial-gradient(circle at 35% 35%, #163255, #0b1220 60%);
+    display:grid;place-items:center;border:2px solid #1e2b4a;
+  }
+  svg{ display:block }
+  .stroke{
+    stroke: var(--ok1); stroke-width:6; fill:none;
+    stroke-dasharray: 100; stroke-dashoffset: 100; animation: draw 650ms ease forwards 150ms;
+  }
+  @keyframes draw{ to{ stroke-dashoffset: 0; } }
+  .ok{ font-weight:800; font-size:1.15rem; margin:0 0 6px }
+  .hint{ color:var(--muted); font-size:.95rem; margin:0 }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Claim ₹70</h1>
+    <div class="sub">Enter UPI ID and join all 9 channels to unlock your reward.</div>
+
+    <div class="field">
+      <input id="upi" class="input" type="text" inputmode="text" autocomplete="off" placeholder="yourname@upi">
+    </div>
+
+    <div class="join-grid" id="grid">
+      <a class="join" href="https://t.me/+RAMY6GoClkhkNDZl" target="_blank"><span class="dot"></span> Join 1</a>
+      <a class="join" href="https://t.me/+CiZ00iD4PrxkZGQ9" target="_blank"><span class="dot"></span> Join 2</a>
+      <a class="join" href="https://t.me/+buD_1PqF7ok4M2Q1" target="_blank"><span class="dot"></span> Join 3</a>
+      <a class="join" href="https://t.me/+17GmP5yP2QlkNmVl" target="_blank"><span class="dot"></span> Join 4</a>
+      <a class="join" href="https://t.me/+ISNv0NZ8u4MzYTZl" target="_blank"><span class="dot"></span> Join 5</a>
+      <a class="join" href="https://t.me/+gnd4OUMgznw5NWU1" target="_blank"><span class="dot"></span> Join 6</a>
+      <a class="join" href="https://t.me/+OE1GN6mdZx8yMjVl" target="_blank"><span class="dot"></span> Join 7</a>
+      <a class="join" href="https://t.me/+F4h0-52y6f43ZmI1" target="_blank"><span class="dot"></span> Join 8</a>
+      <a class="join" href="https://t.me/DaddyLootsOfficial" target="_blank"><span class="dot"></span> Join 9</a>
+    </div>
+
+    <button id="claim" class="cta" disabled>Get Reward</button>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="overlay" class="overlay">
+    <div class="modal">
+      <div class="check">
+        <svg width="56" height="56" viewBox="0 0 24 24">
+          <path class="stroke" d="M20 7L10 17l-4-4"/>
+        </svg>
+      </div>
+      <p class="ok">Reward Sent Successfully</p>
+      <p class="hint">₹70 will be credited to your UPI within 24 hours.</p>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const upi = document.getElementById('upi');
+  const joins = Array.from(document.querySelectorAll('.join'));
+  const btn = document.getElementById('claim');
+  const overlay = document.getElementById('overlay');
+
+  let joinedCount = 0;
+
+  const isValidUPI = (v) => /^[a-z0-9._\-]{3,}@[a-z]{2,}$/i.test(v.trim());
+
+  function reevaluate(){
+    const ok = joinedCount === joins.length && isValidUPI(upi.value);
+    btn.toggleAttribute('disabled', !ok);
+    btn.classList.toggle('active', ok);
+  }
+
+  joins.forEach(j=>{
+    j.addEventListener('click', ()=>{
+      if (!j.classList.contains('done')) {
+        j.classList.add('done');
+        joinedCount++;
+        reevaluate();
+      }
+    });
+  });
+
+  upi.addEventListener('input', reevaluate);
+
+  btn.addEventListener('click', ()=>{
+    if (btn.hasAttribute('disabled')) return;
+    overlay.style.display = 'grid';
+    setTimeout(()=>{
+      window.location.href = "https://t.me/DaddyLootsOfficial"; // 9th link redirect
+    }, 1500);
+  });
+})();
+</script>
+</body>
+</html>

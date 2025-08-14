@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spin & Win – ₹70</title>
+<style>
+  :root{
+    --bg1:#0ea5e9; /* sky-500 */
+    --bg2:#2563eb; /* blue-600 */
+    --card:#0b1220ee;
+    --accent:#22c55e; /* green-500 */
+    --text:#eaf4ff;
+    --muted:#9fb6d6;
+    --btn1:#22c55e;
+    --btn2:#16a34a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 700px at 50% 0%, var(--bg1), var(--bg2));
+    color:var(--text);
+    min-height:100svh;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .wrap{
+    width:100%;
+    max-width:520px;
+    padding:24px;
+  }
+  .card{
+    background:linear-gradient(180deg, #0b1220aa, #0b1220e6);
+    border:1px solid #1f2a44;
+    border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    padding:24px 20px 28px;
+    text-align:center;
+    backdrop-filter: blur(6px);
+  }
+  h1{
+    font-size:1.6rem;margin:0 0 10px;font-weight:700;letter-spacing:.2px;
+  }
+  .sub{color:var(--muted);font-size:.95rem;margin-bottom:18px}
+  .wheel-wrap{
+    position:relative;
+    width:min(82vw,360px);
+    margin:0 auto 18px;
+  }
+  canvas#wheel{
+    width:100%; height:auto; aspect-ratio:1/1;
+    display:block; border-radius:50%;
+    filter: drop-shadow(0 14px 30px rgba(0,0,0,.35));
+    transition: transform 6s cubic-bezier(.12,.78,.22,1);
+    background:#0b1220;
+  }
+  .pointer{
+    position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+    width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:22px solid #fde047; /* amber */
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,.25));
+  }
+  .hub{
+    position:absolute;inset:0;pointer-events:none;
+    display:grid;place-items:center;
+  }
+  .hub::before{
+    content:"";width:24%;aspect-ratio:1/1;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #16233d, #0b1220 60%);
+    border:3px solid #1e2b4a;box-shadow: inset 0 0 10px rgba(255,255,255,.08);
+  }
+  .spin{
+    appearance:none;border:0;cursor:pointer;
+    padding:14px 22px;border-radius:12px;
+    color:#041019;font-weight:700;letter-spacing:.2px;
+    background:linear-gradient(90deg, var(--btn1), var(--btn2));
+    box-shadow:0 10px 24px rgba(34,197,94,.32);
+    transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+  }
+  .spin:active{ transform: translateY(1px) scale(.995); }
+  .spin[disabled]{ opacity:.5; cursor:not-allowed; }
+  .win{
+    display:none;margin:14px 0 10px;font-size:1.1rem;font-weight:700;
+  }
+  .claim{
+    display:none;margin-top:8px; text-decoration:none;
+    color:#041019; font-weight:700; padding:12px 18px; border-radius:12px;
+    background:linear-gradient(90deg, var(--btn1), var(--btn2));
+    box-shadow:0 10px 24px rgba(34,197,94,.32);
+  }
+  /* Confetti */
+  .confetti{
+    position:fixed; inset:0; pointer-events:none; overflow:hidden;
+  }
+  .confetti i{
+    position:absolute; width:8px; height:14px; opacity:0;
+    animation: fall 1200ms linear forwards;
+  }
+  @keyframes fall{
+    0%{ transform: translateY(-10vh) rotate(0deg); opacity:1; }
+    100%{ transform: translateY(110vh) rotate(360deg); opacity:0; }
+  }
+  /* Win glow pulse */
+  .glow{
+    animation: glow 1.2s ease-in-out 2;
+  }
+  @keyframes glow{
+    0%,100%{ text-shadow: 0 0 0 rgba(34,197,94,.0); }
+    50%{ text-shadow: 0 0 28px rgba(34,197,94,.55); }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Spin & Win</h1>
+      <div class="sub">Try your luck — win guaranteed!</div>
+
+      <div class="wheel-wrap">
+        <div class="pointer"></div>
+        <canvas id="wheel" width="500" height="500" aria-label="Spin Wheel"></canvas>
+        <div class="hub"></div>
+      </div>
+
+      <button id="spinBtn" class="spin">SPIN</button>
+      <div id="winTxt" class="win">🎉 Congratulations! You won <span class="glow">₹70</span> 🎉</div>
+      <a id="claimBtn" href="claim.html" class="claim">Claim Reward</a>
+    </div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+<script>
+(function(){
+  const prizes = ["₹10","₹20","₹50","₹100","₹200","₹500","₹30","₹70"];
+  const richColors = ["#ef4444","#22c55e","#f59e0b","#3b82f6","#a855f7","#e11d48","#10b981","#f97316"]; // bold, high-contrast
+  const wheel = document.getElementById('wheel');
+  const ctx = wheel.getContext('2d');
+  const spinBtn = document.getElementById('spinBtn');
+  const winTxt = document.getElementById('winTxt');
+  const claimBtn = document.getElementById('claimBtn');
+
+  const size = wheel.width;
+  const r = size/2;
+  const seg = prizes.length;
+  const arc = (Math.PI*2)/seg;
+
+  // draw segments
+  ctx.translate(r,r);
+  for(let i=0;i<seg;i++){
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.fillStyle = richColors[i%richColors.length];
+    ctx.arc(0,0,r-6,arc*i,arc*(i+1));
+    ctx.closePath();
+    ctx.fill();
+
+    // Divider line
+    ctx.strokeStyle = "rgba(11,18,32,.65)";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0,0,r-6,arc*i,arc*(i+1));
+    ctx.stroke();
+
+    // labels
+    ctx.save();
+    ctx.rotate(arc*i + arc/2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 28px system-ui, Segoe UI, Arial";
+    ctx.shadowColor = "rgba(0,0,0,.35)";
+    ctx.shadowBlur = 6;
+    ctx.fillText(prizes[i], r-28, 10);
+    ctx.restore();
+  }
+
+  // Inner ring
+  ctx.beginPath();
+  ctx.arc(0,0,r*0.32,0,Math.PI*2);
+  ctx.fillStyle = "#0b1220";
+  ctx.fill();
+
+  const indexOf100 = prizes.indexOf("₹100"); // forced win index
+  let spun = false;
+
+  function spinTo(index){
+    // CSS rotation is clockwise from the canvas 3-o’clock axis; pointer is at 12-o’clock.
+    const segmentDeg = 360/seg;
+    // Angle where center of the index segment sits (0 at 3 o'clock). We want it to land at 90deg (top).
+    const targetCenter = index*segmentDeg + segmentDeg/2;
+    const toTop = 90 - targetCenter;
+    const fullTurns = 6 * 360;        // nice long spin
+    const finalAngle = fullTurns + toTop; // ensure stopping at our target
+    wheel.style.transform = `rotate(${finalAngle}deg)`;
+  }
+
+  spinBtn.addEventListener('click', ()=>{
+    if (spun) return;
+    spun = true;
+    spinBtn.disabled = true;
+    spinTo(indexOf100);
+
+    // when transition ends, show win UI + confetti
+    const onEnd = ()=>{
+      wheel.removeEventListener('transitionend', onEnd);
+      celebrate();
+    };
+    wheel.addEventListener('transitionend', onEnd);
+  });
+
+  function celebrate(){
+    winTxt.style.display = 'block';
+    claimBtn.style.display = 'inline-block';
+    burstConfetti(120);
+  }
+
+  function burstConfetti(count){
+    const c = document.getElementById('confetti');
+    const cols = ["#fde047","#22c55e","#60a5fa","#f472b6","#f97316","#34d399"];
+    for(let i=0;i<count;i++){
+      const p = document.createElement('i');
+      const left = Math.random()*100;
+      const dur = 800 + Math.random()*900;
+      const size = 6 + Math.random()*8;
+      const color = cols[i%cols.length];
+      p.style.left = left + "%";
+      p.style.top = "-8vh";
+      p.style.width = size+"px";
+      p.style.height = (size*1.6)+"px";
+      p.style.background = color;
+      p.style.transform = `rotate(${Math.random()*360}deg)`;
+      p.style.animationDuration = dur+"ms";
+      c.appendChild(p);
+      setTimeout(()=>p.remove(), dur+200);
+    }
+  }
+})();
+</script>
+</body>
+</html>
